@@ -12,7 +12,14 @@ import (
 
 func main() {
 
-	go reapZombies()
+	pid := os.Getpid()
+	if pid != 1 {
+		fmt.Printf("[init] PID [%v] running in spawner-only mode", pid)
+	} else {
+		fmt.Printf("[init] PID [%v] running in reaper mode", pid)
+		go reapZombies()
+	}
+
 	command := os.Args
 
 	if len(command) == 1 {
@@ -68,7 +75,6 @@ func main() {
 }
 
 func reapZombies() {
-	fmt.Println("[init] starting reaper")
 	for {
 		var wstatus syscall.WaitStatus
 
