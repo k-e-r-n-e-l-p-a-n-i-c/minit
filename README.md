@@ -13,6 +13,10 @@ First of all it's *fun*. You will have to do a fair amount of study about produc
 # Usage
 You can use **minit** inside a container as an init process or build a custom rootFS image with **minit**  placed under */sbin/minit* for use with **Firecracker**.
 
+The following output's are from a local docker setup. The pre-built image is available [here](https://hub.docker.com/repository/docker/arunmudaliar/minit/general)
+
+
+
 # References
 * [go-reaper](https://github.com/ramr/go-reaper)
 * [go-init](https://github.com/pablo-ruth/go-init)

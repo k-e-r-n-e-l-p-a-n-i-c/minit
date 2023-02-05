@@ -14,21 +14,20 @@ func main() {
 
 	pid := os.Getpid()
 	if pid != 1 {
-		fmt.Printf("[init] PID [%v] running in spawner-only mode", pid)
-	} else {
-		fmt.Printf("[init] PID [%v] running in reaper mode", pid)
-		go reapZombies()
+		fmt.Printf("[minit] PID [%v], minit is running as a non init process. This is not recommended!\n", pid)
 	}
+
+	go reapZombies()
 
 	command := os.Args
 
 	if len(command) == 1 {
-		fmt.Println("[init] nothing to run")
+		fmt.Println("[minit] nothing to run")
 		os.Exit(1)
 	}
 	bin := command[1]
 	args := command[2:]
-	fmt.Printf("[init] %v %v\n", bin, strings.Join(args, " "))
+	fmt.Printf("[minit] %v %v\n", bin, strings.Join(args, " "))
 	cmd := exec.Command(bin, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -47,7 +46,7 @@ func main() {
 	// Start a routine that will receive the signals on the channel and will forward it to child process
 	go func() {
 		sig := <-sigs
-		fmt.Printf("[init] received  %v signal for PID %v\n", sig, cmd.Process.Pid)
+		fmt.Printf("[minit] received  %v signal for PID %v\n", sig, cmd.Process.Pid)
 		cmd.Process.Signal(sig)
 	}()
 
@@ -61,7 +60,7 @@ func main() {
 	// Start the command
 	err := cmd.Start()
 	if err != nil {
-		fmt.Printf("[init] failed to start process  %v\n", err)
+		fmt.Printf("[minit] failed to start process  %v\n", err)
 		os.Exit(1)
 	}
 
@@ -78,17 +77,20 @@ func reapZombies() {
 	for {
 		var wstatus syscall.WaitStatus
 
+		// Wait for zombie/<defunc> process and reap them
 		pid, err := syscall.Wait4(-1, &wstatus, syscall.WNOHANG, nil)
 
-		// Below block is required for busy systems
+		// Below block is required for busy systems.If we receive an error during interrupt we attempt
+		// to call wait again. I was not able to test this case.
 		for syscall.EINTR == err {
 			pid, err = syscall.Wait4(pid, &wstatus, syscall.WNOHANG, nil)
 		}
 
+		// If pid is less than 0, we do nothing as it's not a zombie. We wait for 1s and then continue
 		if pid <= 0 {
 			time.Sleep(1 * time.Second)
 		} else {
-			fmt.Printf("[init] reaping zombie %v\n", pid)
+			fmt.Printf("[minit] reaping zombie %v\n", pid)
 			continue
 		}
 	}
