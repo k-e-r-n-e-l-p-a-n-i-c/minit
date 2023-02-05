@@ -2,7 +2,7 @@
 A minimalistic init system written in Golang for educational purpose.
 
 # Motivation
-First of all it's *fun*. You will have to do a fair amount of study about production grade init system's to understand its internal working's. You'll get to know about how signals and traps work and how to handle zombie and orphan processes. Developing a working model for your own study helps to underdstand these concepts. 
+First of all it's *fun*. You will have to do a fair amount of study about production grade init system's to understand its internal working's. You'll get to know about how signals and traps work and how to handle zombie and orphan processes. Developing a working model for your own study helps to underdstand these concepts. Golang hides most of the internal complexities and provides high level API's that are easy to follow.
 
 # Features
 **minit**, at the very basic level, does the below:
