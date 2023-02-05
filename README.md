@@ -16,6 +16,26 @@ You can use **minit** inside a container as an init process or build a custom ro
 The following output's are from a local docker setup. The pre-built image is available [here](https://hub.docker.com/repository/docker/arunmudaliar/minit/general)
 
 
+```# docker run arunmudaliar/minit:1.0.0```
+
+Inspecting the process tree inside the running container gives:
+```
+# ps -ef
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  0 05:12 ?        00:00:00 minit sleep 10000
+root          14       1  0 05:12 ?        00:00:00 sleep 10000
+```
+Key observations:
+* Running the above container starts **minit** as PID 1 aka init process. 
+* The process *sleep 10000* was spawned by minit. 
+* **minit** will now relay OS signals to this process.
+
+Send an Interrupt to this container (kill or Ctrl-C) and it will be forwarded to *sleep*.
+```
+# docker run arunmudaliar/minit:1.0.0
+[minit] sleep 10000
+^C[minit] received  interrupt signal for PID 14
+```
 
 # References
 * [go-reaper](https://github.com/ramr/go-reaper)
