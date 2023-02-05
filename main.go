@@ -31,6 +31,8 @@ func main() {
 	cmd := exec.Command(bin, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	// Set ProcessGroupID for child process as init process. Both will be under same process group
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	// Create a channel of type os.signal to receive the signals
 	sigs := make(chan os.Signal, 1)
@@ -39,9 +41,6 @@ func main() {
 	// Use signal.Notify() to trap and relay required signals to our channel
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGABRT, syscall.SIGTERM)
 	defer signal.Reset()
-
-	// Set ProcessGroupID for child process as init process. Both will be under same process group
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	// Start a routine that will receive the signals on the channel and will forward it to child process
 	go func() {
